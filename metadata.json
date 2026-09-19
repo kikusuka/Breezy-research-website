@@ -1,0 +1,6 @@
+{
+  "name": "Synthexis",
+  "description": "Interactive Strategic Simulation Lab. Harnesses dynamic expert personas to model scenarios, inject black-swan shocks, and synthesize bulletproof playbooks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
