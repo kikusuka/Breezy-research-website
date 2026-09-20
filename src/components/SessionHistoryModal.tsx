@@ -69,7 +69,7 @@ export const SessionHistoryModal: React.FC<SessionHistoryModalProps> = ({
   // Executive summaries states with localStorage backup
   const [summaries, setSummaries] = useState<Record<string, string>>(() => {
     try {
-      const saved = localStorage.getItem('iris_debate_summaries');
+      const saved = localStorage.getItem('synthexis_debate_summaries');
       return saved ? JSON.parse(saved) : {};
     } catch {
       return {};
@@ -78,7 +78,7 @@ export const SessionHistoryModal: React.FC<SessionHistoryModalProps> = ({
 
   const [categories, setCategories] = useState<Record<string, string>>(() => {
     try {
-      const saved = localStorage.getItem('iris_debate_categories');
+      const saved = localStorage.getItem('synthexis_debate_categories');
       return saved ? JSON.parse(saved) : {};
     } catch {
       return {};
@@ -146,8 +146,8 @@ export const SessionHistoryModal: React.FC<SessionHistoryModalProps> = ({
       setCategories(updatedCategories);
 
       try {
-        localStorage.setItem('iris_debate_summaries', JSON.stringify(updatedSummaries));
-        localStorage.setItem('iris_debate_categories', JSON.stringify(updatedCategories));
+        localStorage.setItem('synthexis_debate_summaries', JSON.stringify(updatedSummaries));
+        localStorage.setItem('synthexis_debate_categories', JSON.stringify(updatedCategories));
       } catch (storeErr) {
         console.warn('Failed to store summaries in localStorage:', storeErr);
       }

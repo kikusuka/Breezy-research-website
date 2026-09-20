@@ -26,11 +26,11 @@ class HeartbeatAudioEngine {
   constructor() {
     // Load persisted state from localStorage
     try {
-      const savedEnabled = localStorage.getItem('iris_ambient_audio_enabled');
+      const savedEnabled = localStorage.getItem('synthexis_ambient_audio_enabled');
       if (savedEnabled !== null) {
         this.isEnabled = savedEnabled === 'true';
       }
-      const savedVolume = localStorage.getItem('iris_ambient_audio_volume');
+      const savedVolume = localStorage.getItem('synthexis_ambient_audio_volume');
       if (savedVolume !== null) {
         const parsedVol = parseFloat(savedVolume);
         if (!isNaN(parsedVol) && parsedVol >= 0 && parsedVol <= 1) {
@@ -90,7 +90,7 @@ class HeartbeatAudioEngine {
   public toggle(): boolean {
     this.isEnabled = !this.isEnabled;
     try {
-      localStorage.setItem('iris_ambient_audio_enabled', String(this.isEnabled));
+      localStorage.setItem('synthexis_ambient_audio_enabled', String(this.isEnabled));
     } catch {}
 
     if (this.isEnabled) {
@@ -108,7 +108,7 @@ class HeartbeatAudioEngine {
     if (this.isEnabled === enabled) return;
     this.isEnabled = enabled;
     try {
-      localStorage.setItem('iris_ambient_audio_enabled', String(enabled));
+      localStorage.setItem('synthexis_ambient_audio_enabled', String(enabled));
     } catch {}
     if (!enabled) {
       this.stop();
@@ -122,7 +122,7 @@ class HeartbeatAudioEngine {
     const clamped = Math.max(0, Math.min(1, vol));
     this.volume = clamped;
     try {
-      localStorage.setItem('iris_ambient_audio_volume', String(clamped));
+      localStorage.setItem('synthexis_ambient_audio_volume', String(clamped));
     } catch {}
 
     if (this.masterGain && this.audioCtx) {
