@@ -16,7 +16,6 @@ import {
   LogOut,
   ChevronDown,
   Settings,
-  Sparkles,
   ShieldCheck,
   Sun,
   Moon,
@@ -76,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenTour,
 }) => {
   const activeKeyCount = Object.values(keys).filter((k) => Boolean(k && k.trim())).length;
-
+  
   const [audioState, setAudioState] = useState(() => audioHeartbeat.getState());
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -88,7 +87,6 @@ export const Header: React.FC<HeaderProps> = ({
     return unsubscribe;
   }, []);
 
-  // Sync ambient audio pulse with active deliberation state
   useEffect(() => {
     if (isDeliberating) {
       audioHeartbeat.start(heartbeat?.bpm || 74);
@@ -97,7 +95,6 @@ export const Header: React.FC<HeaderProps> = ({
     }
   }, [isDeliberating, heartbeat?.bpm]);
 
-  // Click outside to close profile dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -120,47 +117,43 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#1c212d] bg-[#0c0e15]/95 backdrop-blur-md select-none">
+    <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        {/* Brand & Identity */}
+        {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-600 bg-amber-950/20 text-amber-400 shadow-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
             <Sliders className="h-4 w-4" />
           </div>
           <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-serif italic text-[19px] font-normal tracking-[-0.02em] text-white">
+            <div className="flex items-baseline gap-2">
+              <span className="font-semibold text-lg text-slate-900 dark:text-white">
                 Synthexis
               </span>
-              <span className="text-[9.5px] font-mono tracking-[0.14em] uppercase text-amber-400/90 font-semibold bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-900/30">
-                Strategic Lab
-              </span>
-              <span className="text-[9px] font-mono tracking-[0.12em] uppercase text-emerald-400 font-bold bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/40 animate-pulse">
-                Beta Testing
+              <span className="text-xs font-medium tracking-wide uppercase text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800">
+                Lab
               </span>
             </div>
-            <p className="hidden font-serif text-[11px] text-slate-400 lg:block font-normal leading-[1.3] tracking-[-0.005em]">
-              Interactive Strategic Simulation & Threat-Modeling Chamber
+            <p className="hidden text-xs text-slate-500 dark:text-slate-400 lg:block">
+              Strategic Simulation Platform
             </p>
           </div>
         </div>
 
-        {/* Center: Segmented View Switcher & Telemetry Pulse */}
+        {/* Center: View Switcher */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center rounded-lg border border-[#1e2433] bg-[#10131d] p-1">
+          <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-1">
             <button
               type="button"
               onClick={() => onSelectViewMode('chat')}
               className={`flex items-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1 text-xs font-medium transition-all ${
                 viewMode === 'chat'
-                   ? 'bg-[#1e2536] text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#151926]'
+                   ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
-              title="Dialogue Console"
+              title="Chat View"
             >
               <MessageSquare className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Dialogue</span>
-              <span className="sm:hidden">Chat</span>
+              <span className="hidden sm:inline">Chat</span>
             </button>
 
             <button
@@ -168,14 +161,13 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => onSelectViewMode('council')}
               className={`flex items-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1 text-xs font-medium transition-all ${
                 viewMode === 'council'
-                  ? 'bg-[#1e2536] text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#151926]'
+                  ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
-              title="Council Deliberation Ledger"
+              title="Council View"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Chamber</span>
-              <span className="sm:hidden">Council</span>
+              <span className="hidden sm:inline">Council</span>
             </button>
 
             <button
@@ -183,10 +175,10 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => onSelectViewMode('split')}
               className={`hidden md:flex items-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1 text-xs font-medium transition-all ${
                 viewMode === 'split'
-                  ? 'bg-[#1e2536] text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#151926]'
+                  ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
-              title="Split View Side-by-Side"
+              title="Split View"
             >
               <Columns className="h-3.5 w-3.5" />
               <span>Split</span>
@@ -200,92 +192,81 @@ export const Header: React.FC<HeaderProps> = ({
           />
         </div>
 
-        {/* Action Controls - Decluttered with Settings Profile Dropdown */}
+        {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* New Debate Button (Always accessible) */}
           <button
             type="button"
             onClick={onNewDebate}
-            id="header-new-debate-btn"
-            className="flex items-center gap-1.5 rounded-lg border border-[#262e40] bg-[#141824] px-2.5 py-1.5 text-xs font-medium text-slate-200 transition-all hover:border-[#3a4660] hover:bg-[#1b2130] hover:text-white"
-            title="Start a new deliberation inquiry"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all"
+            title="New Debate"
           >
-            <Plus className="h-3.5 w-3.5 text-slate-300" />
-            <span className="hidden sm:inline">New Inquiry</span>
+            <Plus className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">New</span>
           </button>
 
-          {/* Transcripts History Button (Always accessible) */}
           <button
             type="button"
             onClick={onOpenHistory}
-            id="header-sessions-history-btn"
-            className="flex items-center gap-1.5 rounded-lg border border-[#1f2536] bg-[#111420] px-2.5 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-[#323d56] hover:bg-[#171c2b] hover:text-white"
-            title="Browse saved debate transcripts"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all"
+            title="Session History"
           >
-            <History className="h-3.5 w-3.5 text-slate-400" />
-            <span className="hidden md:inline">Transcripts</span>
-            <span className="rounded bg-[#1d2334] px-1.5 py-0.2 text-[10px] font-mono text-slate-300">
+            <History className="h-3.5 w-3.5" />
+            <span className="hidden md:inline">History</span>
+            <span className="rounded bg-slate-200 dark:bg-slate-600 px-1.5 py-0.2 text-xs font-mono text-slate-600 dark:text-slate-300">
               {sessionCount}
             </span>
           </button>
 
-          {/* Theme Toggle Control */}
           <button
             type="button"
             onClick={onToggleTheme}
-            id="header-theme-toggle-btn"
-            className="flex items-center justify-center h-8 w-8 rounded-lg border border-[#1f2536] bg-[#111420] text-slate-300 transition-all hover:border-[#323d56] hover:bg-[#171c2b] hover:text-white"
-            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            className="flex items-center justify-center h-9 w-9 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all"
+            title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
           >
             {theme === 'light' ? (
-              <Moon className="h-4.5 w-4.5 text-indigo-400" />
+              <Moon className="h-4 w-4" />
             ) : (
-              <Sun className="h-4.5 w-4.5 text-amber-400 animate-pulse" />
+              <Sun className="h-4 w-4" />
             )}
           </button>
 
-          {/* Guided Tour Onboarding Button */}
           {onOpenTour && (
             <button
               type="button"
               onClick={onOpenTour}
-              id="header-guided-tour-btn"
-              className="flex items-center gap-1 rounded-lg border border-indigo-500/30 bg-indigo-950/30 px-2.5 py-1.5 text-xs font-semibold text-indigo-300 transition-all hover:border-indigo-500/50 hover:bg-indigo-900/40 hover:text-white"
-              title="Launch Getting Started Guided Tour"
+              className="hidden lg:flex items-center gap-1 rounded-lg border border-indigo-300 dark:border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 px-2.5 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30"
+              title="Guided Tour"
             >
-              <Compass className="h-3.5 w-3.5 text-indigo-400" />
-              <span className="hidden lg:inline">Tour</span>
+              <Compass className="h-3.5 w-3.5" />
+              <span>Tour</span>
             </button>
           )}
 
-          {/* Keyboard Shortcuts Help Button */}
           {onOpenShortcuts && (
             <button
               type="button"
               onClick={onOpenShortcuts}
-              id="header-shortcuts-btn"
-              className="flex items-center justify-center h-8 w-8 rounded-lg border border-[#1f2536] bg-[#111420] text-slate-300 transition-all hover:border-[#323d56] hover:bg-[#171c2b] hover:text-white"
-              title="Keyboard Shortcuts Help (Shift + ?)"
+              className="flex items-center justify-center h-9 w-9 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all"
+              title="Keyboard Shortcuts"
             >
-              <HelpCircle className="h-4 w-4 text-amber-400" />
+              <HelpCircle className="h-4 w-4" />
             </button>
           )}
 
-          {/* Profile & Chamber Settings Section */}
+          {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
             {user ? (
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1.5 rounded-lg border border-[#232a3c] bg-[#121622] p-1.5 hover:border-[#35405a] hover:bg-[#171c2a] transition-all"
-                title="Account Settings & Chamber Setup"
+                className="flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all"
               >
                 <img
-                  src={user.picture}
+                  src={user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
                   alt={user.name}
-                  className="h-5 w-5 rounded-full border border-slate-700 bg-slate-900"
+                  className="h-6 w-6 rounded-full"
                 />
-                <span className="hidden sm:inline text-xs text-slate-300 font-medium max-w-[70px] truncate">
+                <span className="hidden sm:inline text-xs text-slate-700 dark:text-slate-200 font-medium max-w-[80px] truncate">
                   {user.name}
                 </span>
                 <ChevronDown className="h-3 w-3 text-slate-500" />
@@ -294,153 +275,68 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenLogin}
-                className="flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-300 hover:bg-blue-500/20 transition-all shadow-sm shadow-blue-500/10"
+                className="flex items-center gap-1.5 rounded-lg border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-all"
               >
-                <LogIn className="h-3.5 w-3.5 text-blue-400" />
-                <span>Google Login</span>
+                <LogIn className="h-3.5 w-3.5" />
+                <span>Sign In</span>
               </button>
             )}
 
-            {/* Profile Dropdown Menu */}
+            {/* Dropdown Menu */}
             {isDropdownOpen && user && (
-              <div className="absolute right-0 mt-2.5 w-72 rounded-xl border border-[#232a3d] bg-[#0a0d14] p-2.5 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                {/* Account Header */}
-                <div className="flex items-center gap-3 p-2.5 border-b border-[#1b212f] mb-2 bg-[#0d1018]/50 rounded-lg">
+              <div className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-lg z-50">
+                <div className="flex items-center gap-3 p-3 border-b border-slate-200 dark:border-slate-700 mb-2">
                   <img
-                    src={user.picture}
+                    src={user.picture || ''}
                     alt={user.name}
-                    className="h-10 w-10 rounded-full border border-slate-700 p-0.5 bg-slate-900"
+                    className="h-10 w-10 rounded-full"
                   />
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-semibold text-white flex items-center gap-1">
-                      <span>{user.name}</span>
-                      <span title="Verified Google Account">
-                        <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                      </span>
+                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-1">
+                      {user.name}
+                      {user.verified && (
+                        <ShieldCheck className="h-3.5 w-3.5 text-blue-500" />
+                      )}
                     </h4>
-                    <p className="text-[10px] font-mono text-slate-400 truncate leading-relaxed">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                       {user.email}
                     </p>
-                    <p className="text-[9px] text-slate-500 font-serif">
-                      Registered: {user.joinedAt}
-                    </p>
                   </div>
                 </div>
 
-                {/* Section: Chamber Settings */}
-                <div className="space-y-0.5">
-                  <div className="px-2 py-1 text-[9px] font-mono uppercase tracking-wider text-slate-500">
-                    Chamber Configuration
-                  </div>
-
+                <div className="space-y-1">
                   <button
-                    type="button"
-                    onClick={() => {
-                      onOpenCouncil();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-slate-300 hover:bg-[#141a28] hover:text-white transition-colors"
+                    onClick={() => { onOpenCouncil(); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <div className="flex items-center gap-2">
-                      <Sliders className="h-3.5 w-3.5 text-slate-500" />
-                      <span>Protocol Settings</span>
-                    </div>
-                    <span className="rounded bg-[#171c26] px-1.5 py-0.2 text-[9px] font-mono text-slate-400 capitalize">
-                      {protocol}
-                    </span>
+                    <Sliders className="h-4 w-4" />
+                    <span>Settings</span>
                   </button>
 
                   <button
-                    type="button"
-                    onClick={() => {
-                      onOpenVault();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-slate-300 hover:bg-[#141a28] hover:text-white transition-colors"
+                    onClick={() => { onOpenVault(); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <div className="flex items-center gap-2">
-                      <KeyRound className="h-3.5 w-3.5 text-slate-500" />
-                      <span>Provider Keys Vault</span>
-                    </div>
-                    {activeKeyCount > 0 ? (
-                      <span className="rounded bg-emerald-950/40 border border-emerald-800/30 px-1.5 py-0.2 text-[9px] font-mono text-emerald-400">
-                        {activeKeyCount} Keys
-                      </span>
-                    ) : (
-                      <span className="rounded bg-[#171c26] px-1.5 py-0.2 text-[9px] font-mono text-slate-400">
-                        Sandbox
-                      </span>
-                    )}
+                    <KeyRound className="h-4 w-4" />
+                    <span>API Keys</span>
                   </button>
 
                   <button
-                    type="button"
-                    onClick={() => {
-                      onOpenExplainer();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-slate-300 hover:bg-[#141a28] hover:text-white transition-colors"
+                    onClick={() => { onOpenExplainer(); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <BookOpen className="h-3.5 w-3.5 text-slate-500" />
-                    <span>Dialectic Methodology</span>
+                    <BookOpen className="h-4 w-4" />
+                    <span>How it Works</span>
                   </button>
                 </div>
 
-                {/* Section: Custom preferences */}
-                <div className="border-t border-[#1b212f]/60 mt-2 pt-2 space-y-0.5">
-                  <div className="px-2 py-1 text-[9px] font-mono uppercase tracking-wider text-slate-500">
-                    Preferences
-                  </div>
-
-                  {/* Arbiter Interjection Toggle */}
-                  {onToggleInterjection && (
-                    <button
-                      type="button"
-                      onClick={onToggleInterjection}
-                      className="w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-slate-300 hover:bg-[#141a28] hover:text-white transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                        <span>Arbiter Interjections</span>
-                      </div>
-                      <span className={`text-[10px] font-mono font-bold ${interjectionEnabled ? 'text-emerald-400' : 'text-slate-500'}`}>
-                        {interjectionEnabled ? 'ENABLED' : 'PAUSED'}
-                      </span>
-                    </button>
-                  )}
-
-                  {/* Ambient Audio Toggle */}
+                <div className="border-t border-slate-200 dark:border-slate-700 mt-2 pt-2">
                   <button
-                    type="button"
-                    onClick={handleToggleAudio}
-                    className="w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-slate-300 hover:bg-[#141a28] hover:text-white transition-colors"
+                    onClick={() => { onLogout(); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
-                    <div className="flex items-center gap-2">
-                      {audioState.isEnabled ? (
-                        <Volume2 className="h-3.5 w-3.5 text-amber-500" />
-                      ) : (
-                        <VolumeX className="h-3.5 w-3.5 text-slate-500" />
-                      )}
-                      <span>Ambient Chamber Pulse</span>
-                    </div>
-                    <span className={`text-[10px] font-mono font-bold ${audioState.isEnabled ? 'text-amber-400' : 'text-slate-500'}`}>
-                      {audioState.isEnabled ? 'ON' : 'MUTED'}
-                    </span>
-                  </button>
-                </div>
-
-                {/* Section: Logout */}
-                <div className="border-t border-[#1b212f]/60 mt-2.5 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onLogout();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-rose-400 hover:bg-rose-950/20 hover:text-rose-300 transition-colors"
-                  >
-                    <LogOut className="h-3.5 w-3.5 text-rose-500" />
-                    <span>Sign out</span>
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
                   </button>
                 </div>
               </div>

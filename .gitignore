@@ -2,104 +2,40 @@
 # Dependencies
 node_modules/
 
-# Build outputs
+# Build artifacts
 dist/
-build/
-target/
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.py~
-.Python
-env/
-venv/
-.venv/
-.ENV
+# Environment variables
 .env
-.env.*
 .env.local
-
-# Compiled and binary files
-*.o
-*.obj
-*.so
-*.a
-*.lib
-*.dll
-*.exe
-*.out
-*.class
-*.jar
-*.war
+.env.*
 
 # Logs
 *.log
-logs/
 
-# Temporary files
-*.tmp
-*.temp
-*~
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE and editor files
+# Editor files
 .vscode/
 .idea/
 *.swp
 *.swo
-*.swn
-*.sou
-*.sub
-*.lock
-package-lock.json
-yarn.lock
+*.tmp
+
+# Python artifacts (if any Python files exist in the project)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Coverage reports
 coverage/
 htmlcov/
 .coverage
-*.gcov
-*.lcov
 
-# Test results
-test-results/
-*.junit.xml
-*.tap
+# Testing
+.mypy_cache/
+.pytest_cache/
 
-# Environment specific
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Distribution artifacts
-*.tar.gz
-*.zip
-*.rar
-*.7z
-*.gz
-*.bz2
-*.xz
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar
+# System files
+.DS_Store
+Thumbs.db
 ```

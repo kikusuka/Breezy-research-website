@@ -1,22 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: 'Newsreader', Garamond, 'Times New Roman', serif;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer base {
   body {
-    @apply bg-[#0c0e14] text-[#e2e8f0] antialiased selection:bg-amber-500/20 selection:text-amber-100;
-    font-family: var(--font-serif);
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-blue-500/20 selection:text-blue-900;
+    font-family: var(--font-sans);
     font-optical-sizing: auto;
     text-rendering: optimizeLegibility;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-    line-height: 1.48;
+    line-height: 1.5;
   }
 
-  /* Structural UI controls stay clean & crisp with sans */
   button, input, select, textarea, kbd, nav {
     font-family: var(--font-sans);
   }
@@ -25,193 +24,47 @@
     font-family: var(--font-mono);
   }
 
-  /* Refined header letter-spacing */
   h1, h2, h3 {
-    letter-spacing: -0.018em;
+    letter-spacing: -0.025em;
+    font-weight: 600;
   }
 
   h4, h5, h6 {
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
+    font-weight: 600;
   }
 }
 
-/* Light Mode overrides for premium modern iris aesthetic */
-.light {
-  --bg-app: #f1f3f9;
-  --bg-panel: #ffffff;
-  --bg-card: #f8fafc;
-  --bg-input: #f1f5f9;
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
-  --text-main: #334155;
-  --text-title: #0f172a;
-  --text-muted: #64748b;
+/* Dark mode support */
+.dark {
+  --bg-app: #0f172a;
+  --bg-panel: #1e293b;
+  --bg-card: #334155;
+  --bg-input: #475569;
+  --border-primary: #475569;
+  --border-secondary: #64748b;
+  --text-main: #e2e8f0;
+  --text-title: #f1f5f9;
+  --text-muted: #94a3b8;
 }
 
-.light body {
+.dark body {
   background-color: var(--bg-app) !important;
   color: var(--text-main) !important;
 }
 
-/* Light mode overrides for arbitrary Tailwind CSS classes */
-.light .bg-\[\#050609\] { background-color: var(--bg-app) !important; }
-.light .bg-\[\#0c0e14\] { background-color: var(--bg-app) !important; }
-.light .bg-\[\#0c0e15\] { background-color: var(--bg-panel) !important; }
-.light .bg-\[\#0a0d14\] { background-color: var(--bg-panel) !important; }
-.light .bg-\[\#0d0f17\] { background-color: var(--bg-panel) !important; }
-.light .bg-\[\#0d0f16\] { background-color: var(--bg-panel) !important; }
-.light .bg-\[\#111420\] { background-color: var(--bg-card) !important; }
-.light .bg-\[\#10131d\] { background-color: var(--bg-input) !important; }
-.light .bg-\[\#10131c\] { background-color: var(--bg-input) !important; }
-.light .bg-\[\#10131e\] { background-color: var(--bg-input) !important; }
-.light .bg-\[\#141722\] { background-color: var(--bg-card) !important; }
-.light .bg-\[\#121622\] { background-color: var(--bg-card) !important; }
-.light .bg-\[\#070910\] { background-color: var(--bg-panel) !important; }
-.light .bg-\[\#0d1018\]\/50 { background-color: rgba(241, 245, 249, 0.7) !important; }
-
-.light .border-\[\#1c212d\] { border-color: var(--border-primary) !important; }
-.light .border-\[\#222837\] { border-color: var(--border-secondary) !important; }
-.light .border-\[\#1e2330\] { border-color: var(--border-primary) !important; }
-.light .border-\[\#202536\] { border-color: var(--border-primary) !important; }
-.light .border-\[\#222838\] { border-color: var(--border-primary) !important; }
-.light .border-\[\#1c2230\] { border-color: var(--border-primary) !important; }
-.light .border-\[\#232a3d\] { border-color: var(--border-primary) !important; }
-.light .border-\[\#232a3c\] { border-color: var(--border-primary) !important; }
-.light .border-\[\#1b212f\] { border-color: var(--border-primary) !important; }
-
-.light .text-\[\#cbd5e1\] { color: var(--text-main) !important; }
-.light .text-slate-400 { color: var(--text-muted) !important; }
-.light .text-slate-300 { color: var(--text-main) !important; }
-.light .text-slate-200 { color: var(--text-title) !important; }
-.light .text-white { color: var(--text-title) !important; }
-.light .text-amber-200 { color: #b45309 !important; }
-.light .text-amber-300 { color: #d97706 !important; }
-.light .text-sky-300 { color: #0284c7 !important; }
-.light .text-rose-300 { color: #e11d48 !important; }
-.light .text-emerald-300 { color: #059669 !important; }
-.light .text-fuchsia-300 { color: #c026d3 !important; }
-
-/* Additional tweaks to keep the layout absolutely stunning in light mode */
-.light .shadow-2xl {
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08) !important;
-}
-
-.light h1, .light h2, .light h3, .light h4, .light h5, .light h6 {
-  color: var(--text-title) !important;
-}
-
-.light kbd {
-  background-color: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
-  color: #334155 !important;
-}
-
-/* Bespoke Editorial Typography Utility */
-.editorial-serif-body {
-  font-family: var(--font-serif);
-  font-optical-sizing: auto;
-  letter-spacing: -0.003em;
-  line-height: 1.44;
-}
-
-.editorial-serif-heading {
-  font-family: var(--font-serif);
-  letter-spacing: -0.02em;
-  font-feature-settings: "kern" 1, "liga" 1;
-}
-
-/* Custom subtle scrollbar */
+/* Custom scrollbar - subtle and professional */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-@keyframes iris-glow {
-  0%, 100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.9;
-    transform: scale(1.05);
-  }
-}
-
-.animate-iris-glow {
-  animation: iris-glow 4s ease-in-out infinite;
-}
-
-/* Cardiac rhythm CSS keyframes reflecting live BPM */
-@keyframes heartbeat-pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.85;
-    filter: drop-shadow(0 0 0px currentColor);
-  }
-  14% {
-    transform: scale(1.24);
-    opacity: 1;
-    filter: drop-shadow(0 0 5px currentColor);
-  }
-  28% {
-    transform: scale(1.05);
-    opacity: 0.9;
-    filter: drop-shadow(0 0 1px currentColor);
-  }
-  42% {
-    transform: scale(1.16);
-    opacity: 0.95;
-    filter: drop-shadow(0 0 4px currentColor);
-  }
-  70% {
-    transform: scale(1);
-    opacity: 0.85;
-    filter: drop-shadow(0 0 0px currentColor);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.85;
-    filter: drop-shadow(0 0 0px currentColor);
-  }
-}
-
-@keyframes heartbeat-ripple {
-  0% {
-    transform: scale(0.9);
-    opacity: 0.75;
-  }
-  45% {
-    transform: scale(2.1);
-    opacity: 0.2;
-  }
-  100% {
-    transform: scale(2.7);
-    opacity: 0;
-  }
-}
-
-.heartbeat-pulsing {
-  animation-name: heartbeat-pulse;
-  animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
-  transform-origin: center center;
-  will-change: transform, opacity;
-}
-
-.heartbeat-rippling {
-  animation-name: heartbeat-ripple;
-  animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(0, 0.2, 0.8, 1);
-  transform-origin: center center;
-  will-change: transform, opacity;
+  background: rgba(100, 116, 139, 0.7);
 }

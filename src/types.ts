@@ -1,4 +1,4 @@
-export type ProviderId = 'gemini' | 'groq' | 'sambanova' | 'openrouter';
+export type ProviderId = 'gemini' | 'groq' | 'sambanova' | 'openrouter' | 'ollama';
 
 export type SearchEngineProvider = 'google' | 'tavily' | 'serper' | 'brave' | 'duckduckgo';
 
@@ -12,14 +12,20 @@ export interface ProviderKeyConfig {
   brave?: string;
 }
 
-export type AgentRole = 'architect' | 'skeptic' | 'verifier' | 'arbiter' | 'synthesizer';
+export interface OllamaConfig {
+  enabled: boolean;
+  baseUrl: string;
+  model: string;
+}
+
+export type AgentRole = 'architect' | 'skeptic' | 'verifier' | 'arbiter' | 'synthesizer' | 'solo';
 
 export interface AgentConfig {
   id: AgentRole;
   name: string;
   roleTitle: string;
   description: string;
-  provider: ProviderId;
+  provider: ProviderId | 'ollama';
   model: string;
   avatarColor: string;
   systemPrompt: string;
@@ -29,7 +35,7 @@ export interface DebateStep {
   stepId: string;
   role: AgentRole;
   agentName: string;
-  provider: ProviderId;
+  provider: ProviderId | 'ollama';
   model: string;
   status: 'pending' | 'running' | 'completed' | 'error';
   content: string;
@@ -46,7 +52,7 @@ export type DebateTone = 'diplomatic' | 'balanced' | 'rigorous' | 'aggressive';
 export interface DebateSession {
   id: string;
   prompt: string;
-  protocol: 'trio' | 'quad' | 'duel';
+  protocol: 'trio' | 'quad' | 'duel' | 'solo';
   tone?: DebateTone;
   searchEngine?: SearchEngineProvider;
   enableSearchGrounding?: boolean;
@@ -88,8 +94,39 @@ export interface SessionSnapshot {
   sessionId: string;
   name: string;
   prompt: string;
-  protocol: 'trio' | 'quad' | 'duel';
+  protocol: 'trio' | 'quad' | 'duel' | 'solo';
   steps: DebateStep[];
   finalOutput?: string;
   timestamp: number;
+}
+
+export interface SessionMetadata {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  promptCount: number;
+}
+
+export interface Attachment {
+  id: string;
+  fileName: string;
+  fileType: 'pdf' | 'image' | 'text' | 'code';
+  content?: string;
+  size: number;
+  uploadedAt: number;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  attachments?: Attachment[];
+}
+
+export interface ModelConfig {
+  provider: ProviderId | 'ollama';
+  model: string;
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
 }
