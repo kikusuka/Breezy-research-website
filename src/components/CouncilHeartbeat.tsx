@@ -20,6 +20,25 @@ export const CouncilHeartbeat: React.FC<CouncilHeartbeatProps> = ({
   const [tokenSpeed, setTokenSpeed] = useState(0);
   const [prevLength, setPrevLength] = useState(0);
   const [lastCheckTime, setLastCheckTime] = useState(Date.now());
+  const [agentElapsedMs, setAgentElapsedMs] = useState(0);
+
+  // Active agent live elapsed timer
+  useEffect(() => {
+    let timer: any = null;
+    if (isDeliberating) {
+      const startTime = Date.now();
+      timer = setInterval(() => {
+        setAgentElapsedMs(Date.now() - startTime);
+      }, 100);
+    } else {
+      setAgentElapsedMs(0);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isDeliberating, heartbeat?.agentName]);
+
+  const formattedTimer = `${Math.floor(agentElapsedMs / 1000)}.${Math.floor((agentElapsedMs % 1000) / 100)}s`;
 
   // Find currently running step content
   const runningStep = steps.find((s) => s.status === 'running');
@@ -151,16 +170,25 @@ export const CouncilHeartbeat: React.FC<CouncilHeartbeatProps> = ({
             </div>
           </div>
 
-          {/* BPM Readout */}
-          <div className="flex items-baseline gap-1.5 rounded-xl border border-[#1f2537] bg-[#121520] px-3.5 py-1.5 font-mono">
-            <span
-              className={`text-lg font-bold tracking-tight transition-colors ${
-                isDeliberating ? 'text-white' : 'text-[#64748b]'
-              }`}
-            >
-              {currentBpm}
-            </span>
-            <span className="text-[10px] text-[#64748b] uppercase">BPM</span>
+          {/* BPM & Processing Timer Readout */}
+          <div className="flex items-center gap-2">
+            {isDeliberating && (
+              <div className="flex items-center gap-1 rounded-xl border border-amber-500/30 bg-amber-950/20 px-3 py-1.5 font-mono text-xs text-amber-300">
+                <span className="text-[10px] text-amber-400/70 uppercase">Agent Processing:</span>
+                <span className="font-bold">{formattedTimer}</span>
+              </div>
+            )}
+
+            <div className="flex items-baseline gap-1.5 rounded-xl border border-[#1f2537] bg-[#121520] px-3.5 py-1.5 font-mono">
+              <span
+                className={`text-lg font-bold tracking-tight transition-colors ${
+                  isDeliberating ? 'text-white' : 'text-[#64748b]'
+                }`}
+              >
+                {currentBpm}
+              </span>
+              <span className="text-[10px] text-[#64748b] uppercase">BPM</span>
+            </div>
           </div>
         </div>
 

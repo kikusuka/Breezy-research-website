@@ -22,6 +22,7 @@ import {
   Moon,
   HelpCircle,
   Keyboard,
+  Compass,
 } from 'lucide-react';
 import { ProviderKeyConfig, WindowViewMode, HeartbeatState } from '../types';
 import { HeartbeatIndicator } from './HeartbeatIndicator';
@@ -48,6 +49,7 @@ interface HeaderProps {
   interjectionEnabled?: boolean;
   onToggleInterjection?: () => void;
   onOpenShortcuts?: () => void;
+  onOpenTour?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -71,6 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
   interjectionEnabled = true,
   onToggleInterjection,
   onOpenShortcuts,
+  onOpenTour,
 }) => {
   const activeKeyCount = Object.values(keys).filter((k) => Boolean(k && k.trim())).length;
 
@@ -131,6 +134,9 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
               <span className="text-[9.5px] font-mono tracking-[0.14em] uppercase text-amber-400/90 font-semibold bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-900/30">
                 Strategic Lab
+              </span>
+              <span className="text-[9px] font-mono tracking-[0.12em] uppercase text-emerald-400 font-bold bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/40 animate-pulse">
+                Beta Testing
               </span>
             </div>
             <p className="hidden font-serif text-[11px] text-slate-400 lg:block font-normal leading-[1.3] tracking-[-0.005em]">
@@ -237,6 +243,20 @@ export const Header: React.FC<HeaderProps> = ({
               <Sun className="h-4.5 w-4.5 text-amber-400 animate-pulse" />
             )}
           </button>
+
+          {/* Guided Tour Onboarding Button */}
+          {onOpenTour && (
+            <button
+              type="button"
+              onClick={onOpenTour}
+              id="header-guided-tour-btn"
+              className="flex items-center gap-1 rounded-lg border border-indigo-500/30 bg-indigo-950/30 px-2.5 py-1.5 text-xs font-semibold text-indigo-300 transition-all hover:border-indigo-500/50 hover:bg-indigo-900/40 hover:text-white"
+              title="Launch Getting Started Guided Tour"
+            >
+              <Compass className="h-3.5 w-3.5 text-indigo-400" />
+              <span className="hidden lg:inline">Tour</span>
+            </button>
+          )}
 
           {/* Keyboard Shortcuts Help Button */}
           {onOpenShortcuts && (

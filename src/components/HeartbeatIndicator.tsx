@@ -1,5 +1,5 @@
-import React from 'react';
-import { Heart, Activity, Radio, Cpu, ShieldAlert, Scale, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Heart, Activity, Radio, Cpu, ShieldAlert, Scale, CheckCircle2, Clock } from 'lucide-react';
 import { HeartbeatState, AgentRole } from '../types';
 
 export interface HeartbeatIndicatorProps {
@@ -15,9 +15,29 @@ export const HeartbeatIndicator: React.FC<HeartbeatIndicatorProps> = ({
   onClick,
   className = '',
 }) => {
+  const [elapsedMs, setElapsedMs] = useState(0);
+
+  // Live timer effect when active deliberation is running
+  useEffect(() => {
+    let timer: any = null;
+    if (isDeliberating) {
+      const startTime = Date.now();
+      timer = setInterval(() => {
+        setElapsedMs(Date.now() - startTime);
+      }, 100);
+    } else {
+      setElapsedMs(0);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isDeliberating, heartbeat?.agentName]);
+
   const bpm = isDeliberating ? (heartbeat?.bpm || 75) : 60;
   // Calculate period in seconds: T = 60 / bpm
   const durationSec = Number((60 / bpm).toFixed(2));
+
+  const formattedElapsed = `${Math.floor(elapsedMs / 1000)}.${Math.floor((elapsedMs % 1000) / 100)}s`;
 
   // Determine role-specific styling
   const getRoleTheme = (role?: AgentRole) => {
@@ -144,9 +164,9 @@ export const HeartbeatIndicator: React.FC<HeartbeatIndicatorProps> = ({
         </span>
       </div>
 
-      {/* Role / Status Badge (hidden on very small viewports) */}
+      {/* Role / Status Badge & Live Processing Timer */}
       <span
-        className={`hidden xl:inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase max-w-[130px] truncate ${theme.badgeBg}`}
+        className={`hidden lg:inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase max-w-[180px] truncate ${theme.badgeBg}`}
       >
         <span
           className={`h-1.5 w-1.5 rounded-full ${
@@ -155,6 +175,11 @@ export const HeartbeatIndicator: React.FC<HeartbeatIndicatorProps> = ({
           style={{ animationDuration: `${durationSec}s` }}
         />
         <span className="truncate">{getAgentShortLabel()}</span>
+        {isDeliberating && (
+          <span className="font-mono text-[9.5px] text-amber-300 font-bold border-l border-slate-700/60 pl-1">
+            {formattedElapsed}
+          </span>
+        )}
       </span>
 
       {/* Mini Activity Line */}

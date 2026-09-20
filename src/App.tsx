@@ -13,6 +13,7 @@ import { ExplainerModal } from './components/ExplainerModal';
 import { SessionHistoryModal } from './components/SessionHistoryModal';
 import { GoogleAuthModal } from './components/GoogleAuthModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
+import { GettingStartedTour } from './components/GettingStartedTour';
 import {
   ProviderKeyConfig,
   DebateStep,
@@ -48,6 +49,13 @@ export default function App() {
     }
   });
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState<boolean>(() => {
+    try {
+      return !localStorage.getItem('synthexis_tour_seen');
+    } catch {
+      return false;
+    }
+  });
 
   // BYOK Keys
   const [keys, setKeys] = useState<ProviderKeyConfig>(() => {
@@ -736,6 +744,26 @@ export default function App() {
 
   return (
     <div className={`flex min-h-screen flex-col bg-[#050609] text-[#cbd5e1] antialiased selection:bg-[#28324a] selection:text-white transition-colors duration-300 ${theme}`}>
+      {/* Prominent Top Beta Testing Status Bar */}
+      <div className="w-full bg-gradient-to-r from-[#0d101a] via-[#121625] to-[#0d101a] border-b border-indigo-500/30 px-4 py-1 text-center text-[11px] font-mono font-semibold text-indigo-300 flex items-center justify-center gap-2 shadow-xs">
+        <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+        <span className="uppercase tracking-widest text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/40 px-2 py-0.2 rounded-full text-[9.5px]">
+          Beta Testing Mode
+        </span>
+        <span className="hidden sm:inline text-slate-400">•</span>
+        <span className="hidden sm:inline text-slate-300">
+          Synthexis Strategic Lab v2.5 Active Development
+        </span>
+        <span className="text-slate-500 hidden md:inline">|</span>
+        <button
+          type="button"
+          onClick={() => setIsTourOpen(true)}
+          className="underline text-indigo-300 hover:text-white transition-colors text-[10.5px]"
+        >
+          Take Guided Workspace Tour
+        </button>
+      </div>
+
       {/* Header */}
       <Header
         onOpenVault={() => setIsVaultOpen(true)}
@@ -743,6 +771,7 @@ export default function App() {
         onOpenExplainer={() => setIsExplainerOpen(true)}
         onOpenHistory={() => setIsHistoryOpen(true)}
         onOpenShortcuts={() => setIsShortcutsOpen(true)}
+        onOpenTour={() => setIsTourOpen(true)}
         onNewDebate={handleNewDebate}
         sessionCount={sessions.length}
         keys={keys}
@@ -944,6 +973,11 @@ export default function App() {
       <KeyboardShortcutsModal
         isOpen={isShortcutsOpen}
         onClose={() => setIsShortcutsOpen(false)}
+      />
+
+      <GettingStartedTour
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
       />
     </div>
   );

@@ -542,6 +542,17 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
 
               return (
                 <div className="rounded-xl border border-[#1e2330] bg-[#10131c] p-5">
+                  {/* Beta Testing Tag Header */}
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-950/40 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 shadow-xs">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                      Beta Testing
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      v2.5 Council Dynamics Active
+                    </span>
+                  </div>
+
                   <div className="flex items-center justify-between mb-4 border-b border-[#181d28] pb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-mono uppercase tracking-[0.08em] text-slate-300">
