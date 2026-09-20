@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Sliders,
@@ -18,8 +18,54 @@ import {
   Layers,
   HelpCircle,
   Database,
+  UserCheck,
+  Sparkles,
+  RotateCcw,
+  Save,
 } from 'lucide-react';
-import { ProviderKeyConfig, DebateTone, SearchEngineProvider } from '../types';
+import { ProviderKeyConfig, DebateTone, SearchEngineProvider, AgentRole } from '../types';
+
+export interface CustomPersona {
+  name: string;
+  coreIdeology: string;
+  tone: string;
+  knowledgeFocus: string;
+}
+
+export type CustomPersonasMap = Record<AgentRole, CustomPersona>;
+
+export const DEFAULT_PERSONAS: CustomPersonasMap = {
+  architect: {
+    name: 'The First-Principles Architect',
+    coreIdeology: 'Constructive Synthesis, Structural Scalability & First-Principles Engineering',
+    tone: 'Analytical, Systematic, Precision-Focused',
+    knowledgeFocus: 'System Architecture, Algorithmic Foundations & Scalable Infrastructure',
+  },
+  skeptic: {
+    name: 'The Adversarial Red-Teamer',
+    coreIdeology: 'Zero-Trust Verification, Vulnerability Hunting & Edge-Case Failure Modes',
+    tone: 'Incisive, Uncompromising, Sharp',
+    knowledgeFocus: 'Security Exploits, Fault Tolerances & Boundary Conditions',
+  },
+  synthesizer: {
+    name: 'The Dialectic Harmonizer',
+    coreIdeology: 'Objective Categorization, Argument Mapping & Conflict Resolution',
+    tone: 'Balanced, Neutral, Structured',
+    knowledgeFocus: 'Logic Mapping, Cross-Domain Synthesis & Nuance Extraction',
+  },
+  arbiter: {
+    name: 'The Supreme Strategic Adjudicator',
+    coreIdeology: 'Pragmatic Decisiveness, Final Trade-Off Optimization & Executive Synthesis',
+    tone: 'Authoritative, Nuanced, Decisive',
+    knowledgeFocus: 'Strategic Execution, Empirical Risk Trade-offs & Unifying Consensus',
+  },
+  verifier: {
+    name: 'The Formal Logic Inspector',
+    coreIdeology: 'Mathematical Correctness, Consistency Auditing & Soundness Verification',
+    tone: 'Rigorous, Methodical, Exact',
+    knowledgeFocus: 'Formal Methods, Logical Fallacy Detection & Verification Audits',
+  },
+};
 
 interface CouncilConfigModalProps {
   isOpen: boolean;
@@ -217,6 +263,54 @@ export const CouncilConfigModal: React.FC<CouncilConfigModalProps> = ({
   enableSearchGrounding = true,
   onToggleSearchGrounding,
 }) => {
+  const [activeTab, setActiveTab] = useState<'coherence' | 'personas'>('coherence');
+  const [personas, setPersonas] = useState<CustomPersonasMap>(() => {
+    try {
+      const saved = localStorage.getItem('synthexis_custom_personas');
+      if (saved) {
+        return { ...DEFAULT_PERSONAS, ...JSON.parse(saved) };
+      }
+    } catch {
+      // ignore
+    }
+    return DEFAULT_PERSONAS;
+  });
+  const [selectedPersonaRole, setSelectedPersonaRole] = useState<AgentRole>('architect');
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('synthexis_custom_personas', JSON.stringify(personas));
+    } catch {
+      // ignore
+    }
+  }, [personas]);
+
+  const handleUpdatePersonaField = (field: keyof CustomPersona, val: string) => {
+    setPersonas((prev) => ({
+      ...prev,
+      [selectedPersonaRole]: {
+        ...prev[selectedPersonaRole],
+        [field]: val,
+      },
+    }));
+  };
+
+  const handleResetPersonas = () => {
+    setPersonas(DEFAULT_PERSONAS);
+    localStorage.removeItem('synthexis_custom_personas');
+  };
+
+  const handleSavePersonas = () => {
+    try {
+      localStorage.setItem('synthexis_custom_personas', JSON.stringify(personas));
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
+
   if (!isOpen) return null;
 
   const currentToneConfig = TONE_LEVELS.find((t) => t.id === tone) || TONE_LEVELS[1];
@@ -255,18 +349,51 @@ export const CouncilConfigModal: React.FC<CouncilConfigModalProps> = ({
           <X className="h-5 w-5" />
         </button>
 
-        <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400">
-            <Sliders className="h-5 w-5" />
+        <div className="mb-4 flex items-center justify-between border-b border-[#23293a] pb-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400">
+              <Sliders className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Council Configuration</h2>
+              <p className="text-xs text-[#8c92a4]">
+                Manage debate protocols, model bindings, and custom agent personas
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">Coherence Settings</h2>
-            <p className="text-xs text-[#8c92a4]">
-              Configure debate protocols, agent dialectic tone, and role model bindings
-            </p>
+
+          {/* Navigation Tabs */}
+          <div className="flex rounded-lg border border-[#232a3c] bg-[#10131c] p-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab('coherence')}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold transition-all ${
+                activeTab === 'coherence'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span>Coherence</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('personas')}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold transition-all ${
+                activeTab === 'personas'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <UserCheck className="h-3.5 w-3.5" />
+              <span>Personas</span>
+            </button>
           </div>
         </div>
 
+        {/* TAB 1: COHERENCE & PROTOCOLS */}
+        {activeTab === 'coherence' && (
+          <>
         {/* Protocol Selector */}
         <div className="mb-6 space-y-2">
           <div className="flex items-center justify-between">
@@ -729,6 +856,142 @@ export const CouncilConfigModal: React.FC<CouncilConfigModalProps> = ({
             )}
           </div>
         </div>
+        </>
+        )}
+
+        {/* TAB 2: CUSTOM AGENT PERSONAS */}
+        {activeTab === 'personas' && (
+          <div className="space-y-4 my-3">
+            <div className="flex items-center justify-between bg-[#101422] p-3 rounded-xl border border-[#232a3f]">
+              <div>
+                <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <UserCheck className="h-4 w-4 text-indigo-400" />
+                  <span>Custom Agent Ideologies & Focus</span>
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Define distinct persona parameters that influence how agents argue and synthesize
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleResetPersonas}
+                  className="flex items-center gap-1 rounded-lg border border-[#283144] bg-[#161a28] px-2.5 py-1.5 text-[11px] font-medium text-slate-300 hover:text-white transition-all"
+                  title="Reset custom personas to baseline defaults"
+                >
+                  <RotateCcw className="h-3 w-3 text-slate-400" />
+                  <span>Reset Defaults</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSavePersonas}
+                  className="flex items-center gap-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm transition-all"
+                >
+                  {savedSuccess ? (
+                    <>
+                      <Check className="h-3 w-3" />
+                      <span>Saved!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-3 w-3" />
+                      <span>Save Personas</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Persona Role Selection Tabs */}
+            <div className="grid grid-cols-5 gap-1.5 p-1 rounded-xl bg-[#0c0f18] border border-[#1d2334]">
+              {(['architect', 'skeptic', 'synthesizer', 'arbiter', 'verifier'] as AgentRole[]).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setSelectedPersonaRole(r)}
+                  className={`rounded-lg py-1.5 text-center text-xs font-medium capitalize transition-all ${
+                    selectedPersonaRole === r
+                      ? 'bg-[#1e2538] text-amber-400 border border-[#374463] shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+
+            {/* Persona Editor Form */}
+            <div className="rounded-xl border border-[#242b3d] bg-[#111522] p-4 space-y-3.5">
+              <div>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-300 mb-1">
+                  Persona Title & Name
+                </label>
+                <input
+                  type="text"
+                  value={personas[selectedPersonaRole]?.name || ''}
+                  onChange={(e) => handleUpdatePersonaField('name', e.target.value)}
+                  className="w-full rounded-lg border border-[#283146] bg-[#0b0e16] px-3 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                  placeholder="e.g. The Empirical Systems Architect"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-300 mb-1">
+                  Core Ideology & Stance
+                </label>
+                <input
+                  type="text"
+                  value={personas[selectedPersonaRole]?.coreIdeology || ''}
+                  onChange={(e) => handleUpdatePersonaField('coreIdeology', e.target.value)}
+                  className="w-full rounded-lg border border-[#283146] bg-[#0b0e16] px-3 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                  placeholder="e.g. First-Principles, Zero-Trust, Structural Robustness"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-300 mb-1">
+                    Dialectic Tone
+                  </label>
+                  <input
+                    type="text"
+                    value={personas[selectedPersonaRole]?.tone || ''}
+                    onChange={(e) => handleUpdatePersonaField('tone', e.target.value)}
+                    className="w-full rounded-lg border border-[#283146] bg-[#0b0e16] px-3 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                    placeholder="e.g. Incisive, Surgical, Socratic"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-300 mb-1">
+                    Knowledge Focus
+                  </label>
+                  <input
+                    type="text"
+                    value={personas[selectedPersonaRole]?.knowledgeFocus || ''}
+                    onChange={(e) => handleUpdatePersonaField('knowledgeFocus', e.target.value)}
+                    className="w-full rounded-lg border border-[#283146] bg-[#0b0e16] px-3 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                    placeholder="e.g. Security, Game Theory, Systems Design"
+                  />
+                </div>
+              </div>
+
+              {/* Active Persona Operational Summary Card */}
+              <div className="mt-2 rounded-lg border border-[#252f44] bg-[#0b0e17] p-3 text-xs space-y-1">
+                <div className="flex items-center justify-between text-[10.5px] text-slate-400 font-mono">
+                  <span>PERSISTENCE: LOCAL STORAGE ACTIVE</span>
+                  <span className="text-amber-400 uppercase font-semibold">{selectedPersonaRole}</span>
+                </div>
+                <p className="text-slate-200 font-medium">
+                  {personas[selectedPersonaRole]?.name}
+                </p>
+                <p className="text-[11px] text-slate-400 leading-relaxed italic">
+                  "{personas[selectedPersonaRole]?.coreIdeology}"
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6 flex items-center justify-between">
           <div className="flex items-center gap-2 flex-wrap">

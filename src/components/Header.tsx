@@ -20,6 +20,8 @@ import {
   ShieldCheck,
   Sun,
   Moon,
+  HelpCircle,
+  Keyboard,
 } from 'lucide-react';
 import { ProviderKeyConfig, WindowViewMode, HeartbeatState } from '../types';
 import { HeartbeatIndicator } from './HeartbeatIndicator';
@@ -45,6 +47,7 @@ interface HeaderProps {
   onToggleTheme?: () => void;
   interjectionEnabled?: boolean;
   onToggleInterjection?: () => void;
+  onOpenShortcuts?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -67,6 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleTheme,
   interjectionEnabled = true,
   onToggleInterjection,
+  onOpenShortcuts,
 }) => {
   const activeKeyCount = Object.values(keys).filter((k) => Boolean(k && k.trim())).length;
 
@@ -233,6 +237,19 @@ export const Header: React.FC<HeaderProps> = ({
               <Sun className="h-4.5 w-4.5 text-amber-400 animate-pulse" />
             )}
           </button>
+
+          {/* Keyboard Shortcuts Help Button */}
+          {onOpenShortcuts && (
+            <button
+              type="button"
+              onClick={onOpenShortcuts}
+              id="header-shortcuts-btn"
+              className="flex items-center justify-center h-8 w-8 rounded-lg border border-[#1f2536] bg-[#111420] text-slate-300 transition-all hover:border-[#323d56] hover:bg-[#171c2b] hover:text-white"
+              title="Keyboard Shortcuts Help (Shift + ?)"
+            >
+              <HelpCircle className="h-4 w-4 text-amber-400" />
+            </button>
+          )}
 
           {/* Profile & Chamber Settings Section */}
           <div className="relative" ref={dropdownRef}>

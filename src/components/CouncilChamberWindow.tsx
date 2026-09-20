@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShieldAlert,
   Cpu,
@@ -12,6 +12,14 @@ import {
   ListOrdered,
   Flame,
   Brain,
+  Play,
+  Pause,
+  SkipForward,
+  SkipBack,
+  RotateCcw,
+  FileCode,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { CouncilHeartbeat } from './CouncilHeartbeat';
 import { DeliberationBlock } from './DeliberationBlock';
@@ -23,6 +31,7 @@ import { CognitiveDashboard } from './CognitiveDashboard';
 import { DebateStep, HeartbeatState, ProviderKeyConfig, DebateTone, DebateSession } from '../types';
 import { AGENT_AVATARS, getToneAvatar } from '../data/agentAvatars';
 import { loadSessions } from '../services/sessionStorage';
+import { exportTranscriptAsMarkdown, generateMarkdownTranscript } from '../utils/exportTranscript';
 
 interface CouncilChamberWindowProps {
   currentPrompt: string;
@@ -130,6 +139,67 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
     }
   }, [isDeliberating, activeRound, onSetInterjectionActive]);
 
+  // Replay feature state
+  const [isReplayMode, setIsReplayMode] = useState(false);
+  const [replayIndex, setReplayIndex] = useState<number>(0);
+  const [isReplayPlaying, setIsReplayPlaying] = useState(false);
+  const [replaySpeed, setReplaySpeed] = useState<number>(1);
+  const [copiedMd, setCopiedMd] = useState(false);
+
+  // Initialize or reset replay index when steps change or replay mode is toggled
+  useEffect(() => {
+    if (isReplayMode) {
+      setReplayIndex(steps.length);
+    }
+  }, [isReplayMode, steps.length]);
+
+  // Replay playback timer effect
+  useEffect(() => {
+    let timer: any = null;
+    if (isReplayMode && isReplayPlaying) {
+      const intervalMs = Math.max(300, 2000 / replaySpeed);
+      timer = setInterval(() => {
+        setReplayIndex((prev) => {
+          if (prev >= steps.length) {
+            setIsReplayPlaying(false);
+            return steps.length;
+          }
+          return prev + 1;
+        });
+      }, intervalMs);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isReplayMode, isReplayPlaying, steps.length, replaySpeed]);
+
+  const handleExportMarkdownClick = () => {
+    exportTranscriptAsMarkdown({
+      prompt: currentPrompt || 'Council Inquiry',
+      protocol,
+      steps,
+      finalOutput,
+      metrics,
+    });
+  };
+
+  const handleCopyMarkdownClick = async () => {
+    try {
+      const md = generateMarkdownTranscript({
+        prompt: currentPrompt || 'Council Inquiry',
+        protocol,
+        steps,
+        finalOutput,
+        metrics,
+      });
+      await navigator.clipboard.writeText(md);
+      setCopiedMd(true);
+      setTimeout(() => setCopiedMd(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
+
   // Fallback to loaded sessions if not provided
   const allSessions = sessions && sessions.length > 0 ? sessions : loadSessions();
 
@@ -228,6 +298,40 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Replay Mode Toggle */}
+          {steps.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsReplayMode(!isReplayMode);
+                setReplayIndex(0);
+                setIsReplayPlaying(false);
+              }}
+              className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-all ${
+                isReplayMode
+                  ? 'border-indigo-500 bg-indigo-950/40 text-indigo-300 shadow-xs'
+                  : 'border-[#222837] bg-[#141722] text-slate-300 hover:border-[#343e54] hover:text-white'
+              }`}
+              title="Step-by-step interactive debate replay"
+            >
+              <Play className="h-3 w-3 text-indigo-400" />
+              <span>{isReplayMode ? 'Exit Replay' : 'Replay'}</span>
+            </button>
+          )}
+
+          {/* Quick Export Markdown Button */}
+          {steps.length > 0 && (
+            <button
+              type="button"
+              onClick={handleExportMarkdownClick}
+              className="flex items-center gap-1.5 rounded-md border border-[#222837] bg-[#141722] px-2.5 py-1 text-xs font-medium text-slate-300 hover:border-[#343e54] hover:text-white transition-all"
+              title="Download clean Markdown transcript"
+            >
+              <FileCode className="h-3 w-3 text-amber-400" />
+              <span className="hidden sm:inline">Export Markdown</span>
+            </button>
+          )}
+
           {/* Active Interjection Shield Toggle */}
           <button
             type="button"
@@ -551,11 +655,111 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
             {/* Deliberation Transcript Steps */}
             {steps.length > 0 ? (
               <div className="space-y-4">
+                {/* Replay Control Bar when Replay mode is active */}
+                {isReplayMode && (
+                  <div className="rounded-xl border border-indigo-500/40 bg-[#101426] p-3.5 space-y-3 animate-in fade-in duration-150 shadow-lg">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
+                        <span className="font-semibold text-white">Interactive Session Replay</span>
+                        <span className="font-mono text-[10px] text-indigo-300 bg-indigo-950/70 border border-indigo-800/40 px-2 py-0.5 rounded">
+                          Step {replayIndex} of {steps.length}
+                        </span>
+                      </div>
+
+                      {/* Speed Multiplier */}
+                      <div className="flex items-center gap-1 text-[11px] font-mono text-slate-300">
+                        <span className="text-slate-400">Speed:</span>
+                        {[1, 2, 4].map((spd) => (
+                          <button
+                            key={spd}
+                            type="button"
+                            onClick={() => setReplaySpeed(spd)}
+                            className={`px-1.5 py-0.5 rounded ${
+                              replaySpeed === spd
+                                ? 'bg-indigo-600 text-white font-bold'
+                                : 'bg-[#181d30] text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            {spd}x
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 bg-[#0a0d18] p-2 rounded-lg border border-[#1d243a]">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setReplayIndex(0)}
+                          className="p-1.5 rounded-md hover:bg-[#1b2238] text-slate-300 hover:text-white transition-colors"
+                          title="Reset Replay to Beginning"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setReplayIndex((prev) => Math.max(0, prev - 1))}
+                          disabled={replayIndex <= 0}
+                          className="p-1.5 rounded-md hover:bg-[#1b2238] text-slate-300 hover:text-white disabled:opacity-40 transition-colors"
+                          title="Previous Interaction"
+                        >
+                          <SkipBack className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsReplayPlaying(!isReplayPlaying)}
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-colors shadow-xs"
+                        >
+                          {isReplayPlaying ? (
+                            <>
+                              <Pause className="h-3.5 w-3.5" />
+                              <span>Pause</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-3.5 w-3.5" />
+                              <span>Play</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setReplayIndex((prev) => Math.min(steps.length, prev + 1))}
+                          disabled={replayIndex >= steps.length}
+                          className="p-1.5 rounded-md hover:bg-[#1b2238] text-slate-300 hover:text-white disabled:opacity-40 transition-colors"
+                          title="Next Interaction"
+                        >
+                          <SkipForward className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="flex-1 mx-3 h-1.5 rounded-full bg-[#1b2236] overflow-hidden">
+                        <div
+                          className="h-full bg-indigo-500 transition-all duration-200"
+                          style={{
+                            width: `${steps.length > 0 ? (replayIndex / steps.length) * 100 : 0}%`,
+                          }}
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsReplayMode(false)}
+                        className="text-[10px] font-mono text-slate-400 hover:text-slate-200 underline"
+                      >
+                        Exit Replay
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <h3 className="text-[11px] font-mono uppercase tracking-[0.08em] text-slate-300">
-                    Dialectic Proceedings ({steps.length} Rounds)
+                    Dialectic Proceedings ({isReplayMode ? replayIndex : steps.length} of {steps.length} Rounds)
                   </h3>
-                  {isDeliberating && (
+                  {isDeliberating && !isReplayMode && (
                     <span className="text-[11px] font-mono text-amber-300 flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
                       Streaming Round {activeRound}
@@ -564,8 +768,8 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
                 </div>
 
                 <DeliberationBlock
-                  steps={steps}
-                  isDeliberating={isDeliberating}
+                  steps={isReplayMode ? steps.slice(0, replayIndex) : steps}
+                  isDeliberating={isDeliberating && !isReplayMode}
                   activeRound={activeRound}
                   tone={tone}
                 />

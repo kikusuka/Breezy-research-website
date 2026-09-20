@@ -12,6 +12,7 @@ import { CouncilConfigModal } from './components/CouncilConfigModal';
 import { ExplainerModal } from './components/ExplainerModal';
 import { SessionHistoryModal } from './components/SessionHistoryModal';
 import { GoogleAuthModal } from './components/GoogleAuthModal';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import {
   ProviderKeyConfig,
   DebateStep,
@@ -182,6 +183,23 @@ export default function App() {
   const [isCouncilOpen, setIsCouncilOpen] = useState(false);
   const [isExplainerOpen, setIsExplainerOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+
+  // Global keydown listener for hotkeys ('?' or Shift+/)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input/textarea
+      const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (targetTag === 'input' || targetTag === 'textarea') return;
+
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   // Active Deliberation Session State
   const [currentPrompt, setCurrentPrompt] = useState<string>('');
@@ -724,6 +742,7 @@ export default function App() {
         onOpenCouncil={() => setIsCouncilOpen(true)}
         onOpenExplainer={() => setIsExplainerOpen(true)}
         onOpenHistory={() => setIsHistoryOpen(true)}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
         onNewDebate={handleNewDebate}
         sessionCount={sessions.length}
         keys={keys}
@@ -920,6 +939,11 @@ export default function App() {
           setUser(profile);
           localStorage.setItem('iris_google_user', JSON.stringify(profile));
         }}
+      />
+
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
       />
     </div>
   );
