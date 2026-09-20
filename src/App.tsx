@@ -33,16 +33,20 @@ import {
 } from './services/sessionStorage';
 import { AlertCircle } from 'lucide-react';
 
-const STORAGE_KEYS = 'iris_byok_keys';
-const STORAGE_PROTOCOL = 'iris_protocol_mode';
-const STORAGE_TONE = 'iris_debate_tone';
-const STORAGE_VIEW_MODE = 'iris_window_view_mode';
+// Storage key constants - using synthexis_ prefix for consistency
+const STORAGE_KEYS = 'synthexis_byok_keys';
+const STORAGE_PROTOCOL = 'synthexis_protocol_mode';
+const STORAGE_TONE = 'synthexis_debate_tone';
+const STORAGE_VIEW_MODE = 'synthexis_window_view_mode';
+const STORAGE_USER = 'synthexis_user';
+const STORAGE_SEARCH_GROUNDING = 'synthexis_search_grounding';
+const STORAGE_SEARCH_ENGINE = 'synthexis_search_engine';
 
 export default function App() {
   // Google Authentication State
   const [user, setUser] = useState<{ name: string; email: string; picture: string; verified: boolean; joinedAt: string } | null>(() => {
     try {
-      const saved = localStorage.getItem('iris_google_user');
+      const saved = localStorage.getItem(STORAGE_USER);
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -112,7 +116,7 @@ export default function App() {
 
   const [enableSearchGrounding, setEnableSearchGrounding] = useState<boolean>(() => {
     try {
-      const saved = localStorage.getItem('iris_search_grounding');
+      const saved = localStorage.getItem(STORAGE_SEARCH_GROUNDING);
       return saved !== 'false';
     } catch {
       return true;
@@ -122,7 +126,7 @@ export default function App() {
   const handleToggleSearchGrounding = (enabled: boolean) => {
     setEnableSearchGrounding(enabled);
     try {
-      localStorage.setItem('iris_search_grounding', String(enabled));
+      localStorage.setItem(STORAGE_SEARCH_GROUNDING, String(enabled));
     } catch (e) {
       console.warn('Failed to save search grounding preference', e);
     }
@@ -130,7 +134,7 @@ export default function App() {
 
   const [searchEngine, setSearchEngine] = useState<SearchEngineProvider>(() => {
     try {
-      const saved = localStorage.getItem('iris_search_engine');
+      const saved = localStorage.getItem(STORAGE_SEARCH_ENGINE);
       return (saved as SearchEngineProvider) || 'google';
     } catch {
       return 'google';
@@ -140,7 +144,7 @@ export default function App() {
   const handleSelectSearchEngine = (engine: SearchEngineProvider) => {
     setSearchEngine(engine);
     try {
-      localStorage.setItem('iris_search_engine', engine);
+      localStorage.setItem(STORAGE_SEARCH_ENGINE, engine);
     } catch (e) {
       console.warn('Failed to save search engine preference', e);
     }
@@ -784,7 +788,7 @@ export default function App() {
         onOpenLogin={() => setIsLoginOpen(true)}
         onLogout={() => {
           setUser(null);
-          localStorage.removeItem('iris_google_user');
+          localStorage.removeItem(STORAGE_USER);
         }}
         theme={theme}
         onToggleTheme={handleToggleTheme}
@@ -966,7 +970,7 @@ export default function App() {
         onClose={() => setIsLoginOpen(false)}
         onSuccess={(profile) => {
           setUser(profile);
-          localStorage.setItem('iris_google_user', JSON.stringify(profile));
+          localStorage.setItem(STORAGE_USER, JSON.stringify(profile));
         }}
       />
 

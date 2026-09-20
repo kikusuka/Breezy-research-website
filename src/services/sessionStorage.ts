@@ -1,7 +1,8 @@
 import { DebateSession, DebateStep, DebateTone } from '../types';
 
-export const STORAGE_SESSIONS_KEY = 'iris_debate_sessions_v1';
-export const STORAGE_ACTIVE_ID_KEY = 'iris_active_session_id_v1';
+// Storage key constants - using synthexis_ prefix for consistency
+export const STORAGE_SESSIONS_KEY = 'synthexis_debate_sessions_v1';
+export const STORAGE_ACTIVE_ID_KEY = 'synthexis_active_session_id_v1';
 
 export const SEED_SAMPLE_SESSIONS: DebateSession[] = [
   {
