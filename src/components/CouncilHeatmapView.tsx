@@ -44,7 +44,7 @@ export const CouncilHeatmapView: React.FC<CouncilHeatmapViewProps> = ({
   }, [sessions]);
 
   // Roles in standard order
-  const roles: AgentRole[] = ['architect', 'skeptic', 'arbiter', 'verifier'];
+  const roles: AgentRole[] = ['architect', 'skeptic', 'synthesizer', 'arbiter', 'verifier'];
 
   // Calculate agent effectiveness heat levels for each session
   // Score formula incorporates: text content depth, duration efficiency, flaw resolution, consensus rate
@@ -66,6 +66,7 @@ export const CouncilHeatmapView: React.FC<CouncilHeatmapViewProps> = ({
       > = {
         architect: { effectiveness: 0, contentLength: 0, durationSec: 0, status: 'none', model: '', summary: '' },
         skeptic: { effectiveness: 0, contentLength: 0, durationSec: 0, status: 'none', model: '', summary: '' },
+        synthesizer: { effectiveness: 0, contentLength: 0, durationSec: 0, status: 'none', model: '', summary: '' },
         arbiter: { effectiveness: 0, contentLength: 0, durationSec: 0, status: 'none', model: '', summary: '' },
         verifier: { effectiveness: 0, contentLength: 0, durationSec: 0, status: 'none', model: '', summary: '' },
       };
@@ -83,6 +84,8 @@ export const CouncilHeatmapView: React.FC<CouncilHeatmapViewProps> = ({
           score = Math.min(98, 60 + Math.floor(contentLength / 60) + (sessionConsensus > 85 ? 15 : 5));
         } else if (role === 'skeptic') {
           score = Math.min(98, 55 + sessionFlaws * 8 + (contentLength > 500 ? 15 : 5));
+        } else if (role === 'synthesizer') {
+          score = Math.min(97, 65 + Math.floor(contentLength / 50));
         } else if (role === 'arbiter') {
           score = Math.min(100, 65 + Math.floor(sessionConsensus * 0.3) + (session.finalOutput ? 10 : 0));
         } else if (role === 'verifier') {
@@ -125,6 +128,7 @@ export const CouncilHeatmapView: React.FC<CouncilHeatmapViewProps> = ({
     const roleEffectivenessSum: Record<AgentRole, { sum: number; count: number }> = {
       architect: { sum: 0, count: 0 },
       skeptic: { sum: 0, count: 0 },
+      synthesizer: { sum: 0, count: 0 },
       arbiter: { sum: 0, count: 0 },
       verifier: { sum: 0, count: 0 },
     };

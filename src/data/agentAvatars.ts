@@ -69,6 +69,17 @@ export const AGENT_AVATARS: Record<string, AgentAvatarConfig> = {
     badgeText: 'text-emerald-300',
     description: 'Verifies empirical calculations, technical boundary conditions, and testability.',
   },
+  synthesizer: {
+    role: 'synthesizer',
+    name: 'The Synthesizer',
+    title: 'Dialectic Summary & Argument Compilation',
+    avatarSrc: arbiterImg, // reuse arbiter asset beautifully
+    glowColor: 'shadow-fuchsia-500/20 ring-fuchsia-500/40',
+    badgeBorder: 'border-fuchsia-500/30',
+    badgeBg: 'bg-fuchsia-950/40',
+    badgeText: 'text-fuchsia-300',
+    description: 'Compiles and structures an objective bulleted list of key arguments from both sides before final consensus.',
+  },
 };
 
 export function getAgentAvatar(role: string): AgentAvatarConfig {
@@ -76,6 +87,7 @@ export function getAgentAvatar(role: string): AgentAvatarConfig {
   if (normalized.includes('skeptic')) return AGENT_AVATARS.skeptic;
   if (normalized.includes('arbiter')) return AGENT_AVATARS.arbiter;
   if (normalized.includes('verifier')) return AGENT_AVATARS.verifier;
+  if (normalized.includes('synthesizer')) return AGENT_AVATARS.synthesizer;
   return AGENT_AVATARS.architect;
 }
 

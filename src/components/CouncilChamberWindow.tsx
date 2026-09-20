@@ -51,6 +51,16 @@ interface CouncilChamberWindowProps {
   onOpenCouncil: () => void;
   onOpenExplainer: () => void;
   onOpenChatWindow: () => void;
+  
+  // Interactive Arbiter Interjection states
+  interjectionEnabled?: boolean;
+  onToggleInterjection?: () => void;
+  interjectionActive?: boolean;
+  onSetInterjectionActive?: (active: boolean) => void;
+  interjectionText?: string;
+  onSetInterjectionText?: (text: string) => void;
+  onSubmitInterjection?: (text: string) => void;
+  onBypassInterjection?: () => void;
 }
 
 export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
@@ -71,30 +81,54 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
   onOpenCouncil,
   onOpenExplainer,
   onOpenChatWindow,
+  
+  interjectionEnabled,
+  onToggleInterjection,
+  interjectionActive,
+  onSetInterjectionActive,
+  interjectionText,
+  onSetInterjectionText,
+  onSubmitInterjection,
+  onBypassInterjection,
 }) => {
   const [activeTab, setActiveTab] = useState<'deliberation' | 'metrics' | 'heatmap' | 'cognitive'>('deliberation');
 
-  // Interactive Arbiter Interjection states
-  const [interjectionEnabled, setInterjectionEnabled] = useState(true);
-  const [interjectionActive, setInterjectionActive] = useState(false);
-  const [interjectionText, setInterjectionText] = useState('');
+  // Interactive Arbiter Interjection states (local fallback)
+  const [localInterjectionEnabled, setLocalInterjectionEnabled] = useState(true);
+  const [localInterjectionActive, setLocalInterjectionActive] = useState(false);
+  const [localInterjectionText, setLocalInterjectionText] = useState('');
   const [interjectedRound, setInterjectedRound] = useState<number | null>(null);
+
+  const finalInterjectionEnabled = interjectionEnabled !== undefined ? interjectionEnabled : localInterjectionEnabled;
+  const finalInterjectionActive = interjectionActive !== undefined ? interjectionActive : localInterjectionActive;
+  const finalInterjectionText = interjectionText !== undefined ? interjectionText : localInterjectionText;
+
+  const handleToggleInterjection = onToggleInterjection || (() => setLocalInterjectionEnabled(!localInterjectionEnabled));
+  const handleSetInterjectionText = onSetInterjectionText || setLocalInterjectionText;
 
   // Trigger interjection mid-debate automatically on Round 2 if enabled
   React.useEffect(() => {
-    if (isDeliberating && activeRound === 2 && interjectionEnabled && interjectedRound !== 2) {
-      setInterjectionActive(true);
+    if (isDeliberating && activeRound === 2 && finalInterjectionEnabled && interjectedRound !== 2) {
+      if (onSetInterjectionActive) {
+        onSetInterjectionActive(true);
+      } else {
+        setLocalInterjectionActive(true);
+      }
       setInterjectedRound(2);
     }
-  }, [isDeliberating, activeRound, interjectionEnabled, interjectedRound]);
+  }, [isDeliberating, activeRound, finalInterjectionEnabled, interjectedRound, onSetInterjectionActive]);
 
   // Reset interjection state when a completely new debate starts (round reset)
   React.useEffect(() => {
     if (!isDeliberating && activeRound === 0) {
       setInterjectedRound(null);
-      setInterjectionActive(false);
+      if (onSetInterjectionActive) {
+        onSetInterjectionActive(false);
+      } else {
+        setLocalInterjectionActive(false);
+      }
     }
-  }, [isDeliberating, activeRound]);
+  }, [isDeliberating, activeRound, onSetInterjectionActive]);
 
   // Fallback to loaded sessions if not provided
   const allSessions = sessions && sessions.length > 0 ? sessions : loadSessions();
@@ -197,16 +231,16 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
           {/* Active Interjection Shield Toggle */}
           <button
             type="button"
-            onClick={() => setInterjectionEnabled(!interjectionEnabled)}
+            onClick={handleToggleInterjection}
             className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-all ${
-              interjectionEnabled
+              finalInterjectionEnabled
                 ? 'border-rose-500/40 bg-rose-950/20 text-rose-300'
                 : 'border-[#222837] bg-[#141722] text-slate-400 hover:text-slate-200'
             }`}
             title="Pause stream mid-session when logical discrepancies are flagged"
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${interjectionEnabled ? 'bg-rose-500 animate-pulse' : 'bg-slate-500'}`} />
-            <span>Interjection: {interjectionEnabled ? 'ON' : 'OFF'}</span>
+            <span className={`h-1.5 w-1.5 rounded-full ${finalInterjectionEnabled ? 'bg-rose-500 animate-pulse' : 'bg-slate-500'}`} />
+            <span>Interjection: {finalInterjectionEnabled ? 'ON' : 'OFF'}</span>
           </button>
           {/* Export Transcript if deliberation has steps */}
           {steps.length > 0 && (
@@ -285,7 +319,7 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
             />
 
             {/* Active Interjection Dialog overlay when triggered */}
-            {interjectionActive && (
+            {finalInterjectionActive && (
               <div className="rounded-xl border border-rose-500/30 bg-rose-950/25 p-5 space-y-4 shadow-lg animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex items-start gap-3">
                   <span className="text-xl p-1.5 bg-rose-950/40 border border-rose-800/40 rounded-lg select-none">🚨</span>
@@ -310,8 +344,8 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
                   <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
-                      value={interjectionText}
-                      onChange={(e) => setInterjectionText(e.target.value)}
+                      value={finalInterjectionText}
+                      onChange={(e) => handleSetInterjectionText(e.target.value)}
                       placeholder="e.g., Force strictly isolated gRPC threads with secure hardware-level isolation..."
                       className="flex-1 rounded-lg border border-[#232a3d] bg-[#0c0e15] px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500/50 placeholder-slate-500"
                     />
@@ -319,21 +353,29 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          setInterjectionActive(false);
-                          if (interjectionText.trim()) {
-                            // Insert the user interjection physically into the steps list
-                            steps.push({
-                              stepId: `interjection-${Date.now()}`,
-                              role: 'arbiter',
-                              agentName: 'The Arbiter',
-                              provider: 'gemini',
-                              model: 'gemini-2.5-pro',
-                              status: 'completed',
-                              content: `✍️ **[ARBITER INTERVENTION APPLIED]** user clarified: "${interjectionText}"`,
-                              timestamp: Date.now(),
-                            });
+                          if (onSubmitInterjection) {
+                            onSubmitInterjection(finalInterjectionText);
+                          } else {
+                            if (onSetInterjectionActive) {
+                              onSetInterjectionActive(false);
+                            } else {
+                              setLocalInterjectionActive(false);
+                            }
+                            if (finalInterjectionText.trim()) {
+                              // Insert the user interjection physically into the steps list
+                              steps.push({
+                                stepId: `interjection-${Date.now()}`,
+                                role: 'arbiter',
+                                agentName: 'The Arbiter',
+                                provider: 'gemini',
+                                model: 'gemini-2.5-pro',
+                                status: 'completed',
+                                content: `✍️ **[ARBITER INTERVENTION APPLIED]** user clarified: "${finalInterjectionText}"`,
+                                timestamp: Date.now(),
+                              });
+                            }
+                            handleSetInterjectionText('');
                           }
-                          setInterjectionText('');
                         }}
                         className="rounded-lg bg-rose-600 hover:bg-rose-500 px-4 py-2 text-xs font-semibold text-white shadow-md transition-all whitespace-nowrap cursor-pointer"
                       >
@@ -342,8 +384,16 @@ export const CouncilChamberWindow: React.FC<CouncilChamberWindowProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          setInterjectionActive(false);
-                          setInterjectionText('');
+                          if (onBypassInterjection) {
+                            onBypassInterjection();
+                          } else {
+                            if (onSetInterjectionActive) {
+                              onSetInterjectionActive(false);
+                            } else {
+                              setLocalInterjectionActive(false);
+                            }
+                            handleSetInterjectionText('');
+                          }
                         }}
                         className="rounded-lg border border-[#222837] bg-[#141722] hover:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 transition-all cursor-pointer"
                       >

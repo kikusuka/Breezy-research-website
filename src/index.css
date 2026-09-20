@@ -35,6 +35,77 @@
   }
 }
 
+/* Light Mode overrides for premium modern iris aesthetic */
+.light {
+  --bg-app: #f1f3f9;
+  --bg-panel: #ffffff;
+  --bg-card: #f8fafc;
+  --bg-input: #f1f5f9;
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+  --text-main: #334155;
+  --text-title: #0f172a;
+  --text-muted: #64748b;
+}
+
+.light body {
+  background-color: var(--bg-app) !important;
+  color: var(--text-main) !important;
+}
+
+/* Light mode overrides for arbitrary Tailwind CSS classes */
+.light .bg-\[\#050609\] { background-color: var(--bg-app) !important; }
+.light .bg-\[\#0c0e14\] { background-color: var(--bg-app) !important; }
+.light .bg-\[\#0c0e15\] { background-color: var(--bg-panel) !important; }
+.light .bg-\[\#0a0d14\] { background-color: var(--bg-panel) !important; }
+.light .bg-\[\#0d0f17\] { background-color: var(--bg-panel) !important; }
+.light .bg-\[\#0d0f16\] { background-color: var(--bg-panel) !important; }
+.light .bg-\[\#111420\] { background-color: var(--bg-card) !important; }
+.light .bg-\[\#10131d\] { background-color: var(--bg-input) !important; }
+.light .bg-\[\#10131c\] { background-color: var(--bg-input) !important; }
+.light .bg-\[\#10131e\] { background-color: var(--bg-input) !important; }
+.light .bg-\[\#141722\] { background-color: var(--bg-card) !important; }
+.light .bg-\[\#121622\] { background-color: var(--bg-card) !important; }
+.light .bg-\[\#070910\] { background-color: var(--bg-panel) !important; }
+.light .bg-\[\#0d1018\]\/50 { background-color: rgba(241, 245, 249, 0.7) !important; }
+
+.light .border-\[\#1c212d\] { border-color: var(--border-primary) !important; }
+.light .border-\[\#222837\] { border-color: var(--border-secondary) !important; }
+.light .border-\[\#1e2330\] { border-color: var(--border-primary) !important; }
+.light .border-\[\#202536\] { border-color: var(--border-primary) !important; }
+.light .border-\[\#222838\] { border-color: var(--border-primary) !important; }
+.light .border-\[\#1c2230\] { border-color: var(--border-primary) !important; }
+.light .border-\[\#232a3d\] { border-color: var(--border-primary) !important; }
+.light .border-\[\#232a3c\] { border-color: var(--border-primary) !important; }
+.light .border-\[\#1b212f\] { border-color: var(--border-primary) !important; }
+
+.light .text-\[\#cbd5e1\] { color: var(--text-main) !important; }
+.light .text-slate-400 { color: var(--text-muted) !important; }
+.light .text-slate-300 { color: var(--text-main) !important; }
+.light .text-slate-200 { color: var(--text-title) !important; }
+.light .text-white { color: var(--text-title) !important; }
+.light .text-amber-200 { color: #b45309 !important; }
+.light .text-amber-300 { color: #d97706 !important; }
+.light .text-sky-300 { color: #0284c7 !important; }
+.light .text-rose-300 { color: #e11d48 !important; }
+.light .text-emerald-300 { color: #059669 !important; }
+.light .text-fuchsia-300 { color: #c026d3 !important; }
+
+/* Additional tweaks to keep the layout absolutely stunning in light mode */
+.light .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08) !important;
+}
+
+.light h1, .light h2, .light h3, .light h4, .light h5, .light h6 {
+  color: var(--text-title) !important;
+}
+
+.light kbd {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
 /* Bespoke Editorial Typography Utility */
 .editorial-serif-body {
   font-family: var(--font-serif);

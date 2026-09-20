@@ -157,6 +157,26 @@ export default function App() {
     }
   });
 
+  // Light/Dark Theme Preference
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    try {
+      const saved = localStorage.getItem('synthexis_theme');
+      return (saved as 'dark' | 'light') || 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    try {
+      localStorage.setItem('synthexis_theme', nextTheme);
+    } catch (e) {
+      console.warn('Failed to save theme setting preference', e);
+    }
+  };
+
   // Modals
   const [isVaultOpen, setIsVaultOpen] = useState(false);
   const [isCouncilOpen, setIsCouncilOpen] = useState(false);
@@ -179,6 +199,66 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Interactive Arbiter Interjection states
+  const [interjectionEnabled, setInterjectionEnabled] = useState(true);
+  const [interjectionActive, setInterjectionActive] = useState(false);
+  const [interjectionText, setInterjectionText] = useState('');
+  const [interjectedRound, setInterjectedRound] = useState<number | null>(null);
+  const interjectionResolveRef = useRef<(() => void) | null>(null);
+
+  const handleToggleInterjection = () => {
+    setInterjectionEnabled((prev) => !prev);
+  };
+
+  const handleSetInterjectionText = (text: string) => {
+    setInterjectionText(text);
+  };
+
+  const handleSubmitInterjection = (text: string) => {
+    setInterjectionActive(false);
+    if (text.trim()) {
+      setSteps((prev) => {
+        const next = [
+          ...prev,
+          {
+            stepId: `interjection-${Date.now()}`,
+            role: 'arbiter',
+            agentName: 'The Arbiter',
+            provider: 'gemini',
+            model: 'gemini-2.5-pro',
+            status: 'completed',
+            content: `✍️ **[ARBITER INTERVENTION APPLIED]** user clarified: "${text}"`,
+            timestamp: Date.now(),
+          } as DebateStep
+        ];
+        updateActiveSession({ steps: next });
+        return next;
+      });
+    }
+    setInterjectionText('');
+    if (interjectionResolveRef.current) {
+      interjectionResolveRef.current();
+      interjectionResolveRef.current = null;
+    }
+  };
+
+  const handleBypassInterjection = () => {
+    setInterjectionActive(false);
+    setInterjectionText('');
+    if (interjectionResolveRef.current) {
+      interjectionResolveRef.current();
+      interjectionResolveRef.current = null;
+    }
+  };
+
+  // Reset interjection state when a completely new debate starts (round reset)
+  useEffect(() => {
+    if (!isDeliberating && activeRound === 0) {
+      setInterjectedRound(null);
+      setInterjectionActive(false);
+    }
+  }, [isDeliberating, activeRound]);
 
   // Restore active session debate transcript on initial mount
   useEffect(() => {
@@ -400,7 +480,18 @@ export default function App() {
     }
 
     initialSteps.push({
-      stepId: (protocol === 'quad' || protocol === 'duel') ? 'step-4' : 'step-3',
+      stepId: `step-${initialSteps.length + 1}`,
+      role: 'synthesizer',
+      agentName: 'The Synthesizer',
+      provider: 'gemini',
+      model: 'gemini-3.8-flash',
+      status: 'pending',
+      content: '',
+      timestamp: Date.now(),
+    });
+
+    initialSteps.push({
+      stepId: `step-${initialSteps.length + 1}`,
       role: 'arbiter',
       agentName: 'The Arbiter',
       provider: (seats.arbiter.provider as any) || 'gemini',
@@ -471,7 +562,7 @@ export default function App() {
 
           try {
             const data = JSON.parse(trimmed.slice(6));
-            handleServerEvent(data);
+            await handleServerEvent(data);
           } catch (e) {
             console.warn('Failed to parse SSE payload', e);
           }
@@ -494,7 +585,7 @@ export default function App() {
     }
   };
 
-  const handleServerEvent = (event: any) => {
+  const handleServerEvent = async (event: any) => {
     switch (event.type) {
       case 'heartbeat': {
         setHeartbeat({
@@ -570,6 +661,17 @@ export default function App() {
           updateActiveSession({ steps: next });
           return next;
         });
+
+        // Interactive Arbiter Interjection pause mid-debate on Round 2
+        if (event.round === 2 && interjectionEnabled) {
+          setActiveRound(2);
+          setInterjectionActive(true);
+          setInterjectedRound(2);
+          // Pause execution and wait for resolver to be called by user submit/bypass action
+          await new Promise<void>((resolve) => {
+            interjectionResolveRef.current = resolve;
+          });
+        }
         break;
       }
 
@@ -615,7 +717,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#050609] text-[#cbd5e1] antialiased selection:bg-[#28324a] selection:text-white">
+    <div className={`flex min-h-screen flex-col bg-[#050609] text-[#cbd5e1] antialiased selection:bg-[#28324a] selection:text-white transition-colors duration-300 ${theme}`}>
       {/* Header */}
       <Header
         onOpenVault={() => setIsVaultOpen(true)}
@@ -636,6 +738,10 @@ export default function App() {
           setUser(null);
           localStorage.removeItem('iris_google_user');
         }}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+        interjectionEnabled={interjectionEnabled}
+        onToggleInterjection={handleToggleInterjection}
       />
 
       {/* Main Workspace Area */}
@@ -702,6 +808,14 @@ export default function App() {
               onOpenCouncil={() => setIsCouncilOpen(true)}
               onOpenExplainer={() => setIsExplainerOpen(true)}
               onOpenChatWindow={() => handleSelectViewMode('chat')}
+              interjectionEnabled={interjectionEnabled}
+              onToggleInterjection={handleToggleInterjection}
+              interjectionActive={interjectionActive}
+              onSetInterjectionActive={setInterjectionActive}
+              interjectionText={interjectionText}
+              onSetInterjectionText={handleSetInterjectionText}
+              onSubmitInterjection={handleSubmitInterjection}
+              onBypassInterjection={handleBypassInterjection}
             />
           </div>
         )}
@@ -744,6 +858,14 @@ export default function App() {
               onOpenCouncil={() => setIsCouncilOpen(true)}
               onOpenExplainer={() => setIsExplainerOpen(true)}
               onOpenChatWindow={() => handleSelectViewMode('chat')}
+              interjectionEnabled={interjectionEnabled}
+              onToggleInterjection={handleToggleInterjection}
+              interjectionActive={interjectionActive}
+              onSetInterjectionActive={setInterjectionActive}
+              interjectionText={interjectionText}
+              onSetInterjectionText={handleSetInterjectionText}
+              onSubmitInterjection={handleSubmitInterjection}
+              onBypassInterjection={handleBypassInterjection}
             />
           </div>
         )}

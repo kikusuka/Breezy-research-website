@@ -18,6 +18,8 @@ import {
   Settings,
   Sparkles,
   ShieldCheck,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { ProviderKeyConfig, WindowViewMode, HeartbeatState } from '../types';
 import { HeartbeatIndicator } from './HeartbeatIndicator';
@@ -39,6 +41,10 @@ interface HeaderProps {
   user: { name: string; email: string; picture: string; verified: boolean; joinedAt: string } | null;
   onOpenLogin: () => void;
   onLogout: () => void;
+  theme?: 'dark' | 'light';
+  onToggleTheme?: () => void;
+  interjectionEnabled?: boolean;
+  onToggleInterjection?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -57,6 +63,10 @@ export const Header: React.FC<HeaderProps> = ({
   user,
   onOpenLogin,
   onLogout,
+  theme = 'dark',
+  onToggleTheme,
+  interjectionEnabled = true,
+  onToggleInterjection,
 }) => {
   const activeKeyCount = Object.values(keys).filter((k) => Boolean(k && k.trim())).length;
 
@@ -209,6 +219,21 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           </button>
 
+          {/* Theme Toggle Control */}
+          <button
+            type="button"
+            onClick={onToggleTheme}
+            id="header-theme-toggle-btn"
+            className="flex items-center justify-center h-8 w-8 rounded-lg border border-[#1f2536] bg-[#111420] text-slate-300 transition-all hover:border-[#323d56] hover:bg-[#171c2b] hover:text-white"
+            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          >
+            {theme === 'light' ? (
+              <Moon className="h-4.5 w-4.5 text-indigo-400" />
+            ) : (
+              <Sun className="h-4.5 w-4.5 text-amber-400 animate-pulse" />
+            )}
+          </button>
+
           {/* Profile & Chamber Settings Section */}
           <div className="relative" ref={dropdownRef}>
             {user ? (
@@ -329,6 +354,23 @@ export const Header: React.FC<HeaderProps> = ({
                   <div className="px-2 py-1 text-[9px] font-mono uppercase tracking-wider text-slate-500">
                     Preferences
                   </div>
+
+                  {/* Arbiter Interjection Toggle */}
+                  {onToggleInterjection && (
+                    <button
+                      type="button"
+                      onClick={onToggleInterjection}
+                      className="w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-slate-300 hover:bg-[#141a28] hover:text-white transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                        <span>Arbiter Interjections</span>
+                      </div>
+                      <span className={`text-[10px] font-mono font-bold ${interjectionEnabled ? 'text-emerald-400' : 'text-slate-500'}`}>
+                        {interjectionEnabled ? 'ENABLED' : 'PAUSED'}
+                      </span>
+                    </button>
+                  )}
 
                   {/* Ambient Audio Toggle */}
                   <button

@@ -12,7 +12,7 @@ export interface ProviderKeyConfig {
   brave?: string;
 }
 
-export type AgentRole = 'architect' | 'skeptic' | 'verifier' | 'arbiter';
+export type AgentRole = 'architect' | 'skeptic' | 'verifier' | 'arbiter' | 'synthesizer';
 
 export interface AgentConfig {
   id: AgentRole;

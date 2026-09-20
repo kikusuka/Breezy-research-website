@@ -100,8 +100,28 @@ export const FinalAnswerCard: React.FC<FinalAnswerCardProps> = ({
           </div>
         </div>
 
-        {/* Action Controls: Quick PDF/MD Export & Menu */}
+        {/* Action Controls: Copy, Quick PDF/MD Export & Menu */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Copy Resolution Button */}
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 rounded-lg border border-[#262c3b] bg-[#141722] px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#384155] hover:text-white transition-all shadow-sm"
+            title="Copy synthesized consensus resolution to clipboard"
+          >
+            {copied ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="text-emerald-300 font-semibold">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3.5 w-3.5 text-slate-400" />
+                <span>Copy</span>
+              </>
+            )}
+          </button>
+
           {/* Quick PDF Export */}
           <button
             type="button"

@@ -44,6 +44,32 @@ export const PromptInput: React.FC<PromptInputProps> = ({
     }
   }, [prompt]);
 
+  // Global Keyboard Shortcuts (Cmd+K to focus, Cmd+Enter to start debate)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const isInput = document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
+      
+      // Cmd+K or Ctrl+K anywhere -> Focus prompt
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }
+      
+      // Cmd+Enter or Ctrl+Enter anywhere (or focused) -> Submit debate
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        if (prompt.trim() && !isDeliberating) {
+          e.preventDefault();
+          onStartDebate(prompt.trim());
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [prompt, isDeliberating, onStartDebate]);
+
   return (
     <div className="w-full space-y-3">
       {/* Preset Inquiries */}

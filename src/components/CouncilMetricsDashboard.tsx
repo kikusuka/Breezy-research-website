@@ -62,6 +62,7 @@ export const CouncilMetricsDashboard: React.FC<CouncilMetricsDashboardProps> = (
     > = {
       architect: { count: 0, totalDurationMs: 0, minDurationMs: Infinity, maxDurationMs: 0, consensusCount: 0, flawResolutions: 0, models: new Set() },
       skeptic: { count: 0, totalDurationMs: 0, minDurationMs: Infinity, maxDurationMs: 0, consensusCount: 0, flawResolutions: 0, models: new Set() },
+      synthesizer: { count: 0, totalDurationMs: 0, minDurationMs: Infinity, maxDurationMs: 0, consensusCount: 0, flawResolutions: 0, models: new Set() },
       arbiter: { count: 0, totalDurationMs: 0, minDurationMs: Infinity, maxDurationMs: 0, consensusCount: 0, flawResolutions: 0, models: new Set() },
       verifier: { count: 0, totalDurationMs: 0, minDurationMs: Infinity, maxDurationMs: 0, consensusCount: 0, flawResolutions: 0, models: new Set() },
     };
@@ -109,11 +110,12 @@ export const CouncilMetricsDashboard: React.FC<CouncilMetricsDashboardProps> = (
     const roleColors: Record<AgentRole, { bar: string; light: string; border: string }> = {
       architect: { bar: '#38bdf8', light: '#e0f2fe', border: '#0284c7' },
       skeptic: { bar: '#fb7185', light: '#ffe4e6', border: '#e11d48' },
+      synthesizer: { bar: '#c084fc', light: '#f3e8ff', border: '#9333ea' },
       arbiter: { bar: '#fbbf24', light: '#fef3c7', border: '#d97706' },
       verifier: { bar: '#34d399', light: '#d1fae5', border: '#059669' },
     };
 
-    const roleOrder: AgentRole[] = ['architect', 'skeptic', 'arbiter', 'verifier'];
+    const roleOrder: AgentRole[] = ['architect', 'skeptic', 'synthesizer', 'arbiter', 'verifier'];
     const activeRoles = roleOrder.filter((r) => roleStats[r].count > 0);
 
     const agentAverages = activeRoles.map((role) => {
