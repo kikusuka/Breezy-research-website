@@ -283,35 +283,56 @@ export class GoogleDriveService {
   }
 
   /**
-   * List all session files in Drive
+   * List all session files in Drive (convenience method with size info)
    */
-  async listAllSessions(sessionsFolderId: string): Promise<SessionMetadata[]> {
+  async listAllSessions(sessionsFolderIdOrName: string): Promise<any[]> {
+    // If it's a folder name, get the ID first
+    let folderId = sessionsFolderIdOrName;
+    if (!sessionsFolderIdOrName.includes('-')) {
+      // It's likely a name, try to get folder
+      try {
+        const { sessionsFolderId } = await this.ensureAppFolderStructure();
+        folderId = sessionsFolderId;
+      } catch (e) {
+        console.error('Could not get folder structure:', e);
+        return [];
+      }
+    }
+    
     const response = await this.gapiClient.drive.files.list({
-      q: `name starts with 'session_' and name ends with '.json' and '${sessionsFolderId}' in parents and trashed=false`,
-      fields: 'files(id, name, modifiedTime)',
+      q: `name starts with 'session_' and name ends with '.json' and '${folderId}' in parents and trashed=false`,
+      fields: 'files(id, name, modifiedTime, size)',
       spaces: 'drive',
       orderBy: 'modifiedTime desc',
     });
     
-    const sessions: SessionMetadata[] = [];
+    return response.result.files || [];
+  }
+
+  /**
+   * Delete session file by ID (convenience method)
+   */
+  async deleteSessionById(sessionId: string): Promise<void> {
+    const { sessionsFolderId } = await this.ensureAppFolderStructure();
+    await this.deleteSession(sessionId, sessionsFolderId);
+  }
+
+  /**
+   * List all session metadata (legacy method)
+   */
+  async listSessionMetadata(sessionsFolderId: string): Promise<SessionMetadata[]> {
+    const files = await this.listAllSessions(sessionsFolderId);
     
-    if (response.result.files) {
-      for (const file of response.result.files) {
-        // Extract session ID from filename
-        const match = file.name.match(/session_(.+)\.json/);
-        if (match) {
-          sessions.push({
-            id: match[1],
-            title: `Session ${match[1].substring(0, 8)}...`,
-            createdAt: file.modifiedTime,
-            updatedAt: file.modifiedTime,
-            promptCount: 0, // Will be populated when loading full session
-          });
-        }
-      }
-    }
-    
-    return sessions;
+    return files.map((file: any) => {
+      const match = file.name.match(/session_(.+)\.json/);
+      return {
+        id: match ? match[1] : file.id,
+        title: `Session ${match ? match[1].substring(0, 8) : 'unknown'}...`,
+        createdAt: file.modifiedTime,
+        updatedAt: file.modifiedTime,
+        promptCount: 0,
+      };
+    });
   }
 
   /**
